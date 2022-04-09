@@ -2,7 +2,12 @@
   <main class="w-[600px] px-1 py-4 text-gray-700">
     <!--    <Logo />-->
     <div class="">
-      <tabs size="large" type="rounded" destroy-on-hide default-active-key="图片上传">
+      <tabs
+        size="large"
+        type="rounded"
+        destroy-on-hide
+        default-active-key="图片上传"
+      >
         <template #extra>
           <input id="importJson" type="file" hidden @change="inputChange" />
           <Button type="outline" size="mini" @click="importJson">
@@ -27,100 +32,101 @@
 </template>
 
 <script setup>
-import Idb from 'idb-js'
-import uuid from 'uuidjs'
-import { Button, Tabs, TabPane, Message } from '@arco-design/web-vue'
-import { IconImport, IconExport } from '@arco-design/web-vue/es/icon'
-import Upload from './pages/Upload.vue'
-import ImageList from './pages/ImageList.vue'
-import db_img_config from './db_img_config'
-import { storageDemo } from '~/logic/storage'
-import { formatDate } from '~/utils'
+import Idb from "idb-js";
+import uuid from "uuidjs";
+import { Button, Tabs, TabPane, Message } from "@arco-design/web-vue";
+import { IconImport, IconExport } from "@arco-design/web-vue/es/icon";
+import Upload from "./pages/Upload.vue";
+import ImageList from "./pages/ImageList.vue";
+import db_img_config from "./db_img_config";
+import { storageDemo } from "~/logic/storage";
+import { formatDate } from "~/utils";
 
-const pages = reactive([{
-  name: '图片上传',
-  component: Upload,
-}, {
-  name: '已上传图片',
-  component: ImageList,
-}])
+const pages = reactive([
+  {
+    name: "图片上传",
+    component: Upload,
+  },
+  {
+    name: "已上传图片",
+    component: ImageList,
+  },
+]);
 
-const refreshKey = ref(0)
+const refreshKey = ref(0);
 
-onMounted(() => {
-})
+onMounted(() => {});
 
 const saveDataToIdb = (jsonData = []) => {
-  let errNum = 0
-  Idb(db_img_config).then((img_db) => {
-    jsonData.forEach((data) => {
-      if (data.name && data.url) {
-        if (!data.id) {
-          data.id = uuid.generate()
+  let errNum = 0;
+  Idb(db_img_config)
+    .then((img_db) => {
+      jsonData.forEach((data) => {
+        if (data.name && data.url) {
+          if (!data.id) {
+            data.id = uuid.generate();
+          }
+          img_db.insert({
+            tableName: "img",
+            data,
+            success: () => {
+              console.log("添加成功");
+            },
+          });
+        } else {
+          errNum += 1;
         }
-        img_db.insert({
-          tableName: 'img',
-          data,
-          success: () => {
-            console.log('添加成功')
-          },
-        })
-      }
-      else {
-        errNum += 1
-      }
+      });
     })
-  }).finally(() => {
-    const successNum = jsonData.length - errNum
-    Message.success({
-      content: `${successNum}个添加成功！${errNum}个数据上传失败！`,
-      duration: 2000,
-    })
-    refreshKey.value++
-  })
-}
+    .finally(() => {
+      const successNum = jsonData.length - errNum;
+      Message.success({
+        content: `${successNum}个添加成功！${errNum}个数据上传失败！`,
+        duration: 2000,
+      });
+      refreshKey.value++;
+    });
+};
 
 const inputChange = (evt) => {
-  const file = evt.target.files[0]
-  const reader = new FileReader()
-  reader.readAsText(file)
+  const file = evt.target.files[0];
+  const reader = new FileReader();
+  reader.readAsText(file);
   reader.onload = (readerEvt) => {
-    const fileString = readerEvt.target.result
-    const jsonData = JSON.parse(fileString)
-    saveDataToIdb(jsonData)
-  }
-}
+    const fileString = readerEvt.target.result;
+    const jsonData = JSON.parse(fileString);
+    saveDataToIdb(jsonData);
+  };
+};
 
 const importJson = () => {
-  const input = document.querySelector('#importJson')
-  input.click()
-}
+  const input = document.querySelector("#importJson");
+  input.click();
+};
 
 const exportJson = () => {
   Idb(db_img_config).then((img_db) => {
     img_db.queryAll({
-      tableName: 'img',
+      tableName: "img",
       success: (res) => {
-        const content = JSON.stringify(res)
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${formatDate()}.json`
-        a.display = 'none'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
+        const content = JSON.stringify(res);
+        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${formatDate()}.json`;
+        a.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       },
-    })
-  })
-}
+    });
+  });
+};
 
 // function openOptionsPage() {
 //   browser.runtime.openOptionsPage()
 // }
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

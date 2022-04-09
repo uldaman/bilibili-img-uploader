@@ -1,25 +1,17 @@
 <template>
   <div class="upload-page border-top-line" @paste="handleTPaste">
-    <input id="focus" autofocus focus class="use-focus">
+    <input id="focus" autofocus focus class="use-focus" />
     <div class="layout-slide p-2 switch-row token">
-      <Tag color="#fb7299">
-        默认复制格式
-      </Tag>
+      <Tag color="#fb7299"> 默认复制格式 </Tag>
       <radio-group v-model="copyStyle" @change="changeCopyStyle">
-        <radio value="md">
-          Markdown
-        </radio>
-        <radio value="shortURL">
-          短链
-        </radio>
+        <radio value="md"> Markdown </radio>
+        <radio value="shortURL"> 短链 </radio>
       </radio-group>
     </div>
     <div class="layout-slide p-2 switch-row token">
-      <Tag color="#fb7299">
-        当前SESSDATA
-      </Tag>
+      <Tag color="#fb7299"> 当前SESSDATA </Tag>
       <Tag v-if="token" color="#00a1d6">
-        {{ token.substr(0, 8).padEnd(16,'*') }}
+        {{ token.substr(0, 8).padEnd(16, "*") }}
       </Tag>
 
       <Link v-else :href="loginUrl" class="">
@@ -42,7 +34,7 @@
       >
         <template #upload-button>
           <div class="upload-main">
-            <span style="color: #3370FF"> 支持粘贴、拖动、点击文件上传</span>
+            <span style="color: #3370ff"> 支持粘贴、拖动、点击文件上传</span>
           </div>
         </template>
       </Upload>
@@ -73,16 +65,10 @@
     </div>
     <div class="footer">
       By
-      <Link
-        class="author"
-        href="https://github.com/xlzy520"
-        target="_blank"
-      >
+      <Link class="author" href="https://github.com/xlzy520" target="_blank">
         执笔看墨花开（GitHub）
       </Link>
-      <div class="mr-2">
-        |
-      </div>
+      <div class="mr-2">|</div>
       <Link
         class="author"
         href="https://space.bilibili.com/7560113"
@@ -95,71 +81,79 @@
 </template>
 
 <script setup>
-import Idb from 'idb-js'
-import uuid from 'uuidjs'
-import { Button, Tag, Link, Upload, Message, TypographyParagraph, RadioGroup, Radio } from '@arco-design/web-vue'
-import db_img_config from '../db_img_config'
-import { copyToClipboard, fetchShortUrl, getPasteImg } from '~/utils'
+import Idb from "idb-js";
+import uuid from "uuidjs";
+import {
+  Button,
+  Tag,
+  Link,
+  Upload,
+  Message,
+  TypographyParagraph,
+  RadioGroup,
+  Radio,
+} from "@arco-design/web-vue";
+import db_img_config from "../db_img_config";
+import { copyToClipboard, fetchShortUrl, getPasteImg } from "~/utils";
 
-const homePage = 'https://bilibili.com'
-const loginUrl = 'https://passport.bilibili.com/login'
-const uploadUrl = 'https://api.vc.bilibili.com/api/v1/drawImage/upload'
-const token = ref('')
+const homePage = "https://bilibili.com";
+const loginUrl = "https://passport.bilibili.com/login";
+const uploadUrl = "https://api.vc.bilibili.com/api/v1/drawImage/upload";
+const token = ref("");
 const uploadData = {
-  category: 'daily',
-  biz: 'draw',
-}
-const fileList = ref([])
-const upload = ref(null)
+  category: "daily",
+  biz: "draw",
+};
+const fileList = ref([]);
+const upload = ref(null);
 
-const types = ref(['图片链接', 'MarkDown', 'B站短链'])
+const types = ref(["图片链接", "MarkDown", "B站短链"]);
 
-const links = ref([])
+const links = ref([]);
 
 const getResponseImgUrlHttps = (res) => {
   if (res) {
-    return res.data.image_url.replace('http', 'https')
+    return res.data.image_url.replace("http", "https");
   }
-  return ''
-}
+  return "";
+};
 
-const copyStyle = ref('shortURL')
+const copyStyle = ref("shortURL");
 const changeCopyStyle = (val) => {
-  localStorage.setItem('copyStyle', val)
-}
+  localStorage.setItem("copyStyle", val);
+};
 
 const getShortUrl = (link) => {
-  const copyShortURL = copyStyle.value === 'shortURL'
+  const copyShortURL = copyStyle.value === "shortURL";
   fetchShortUrl(link, copyShortURL).then((res) => {
     if (res) {
-      links.value.push(res)
+      links.value.push(res);
     }
-  })
-}
+  });
+};
 
 const toLogin = () => {
-  Message.warning('未登录或登录已过期, 一秒后自动跳转登录页...')
+  Message.warning("未登录或登录已过期, 一秒后自动跳转登录页...");
   setTimeout(() => {
-    window.open(loginUrl)
-  }, 1000)
-}
+    window.open(loginUrl);
+  }, 1000);
+};
 
 const uploadSuccess = (FileItem) => {
-  const res = FileItem.response
-  if (res.message === 'success') {
-    const link = getResponseImgUrlHttps(res)
-    const mdValue = `![](${link})`
-    links.value = [link, mdValue]
-    const copyMD = copyStyle.value === 'md'
+  const res = FileItem.response;
+  if (res.message === "success") {
+    const link = getResponseImgUrlHttps(res);
+    const mdValue = `![](${link})`;
+    links.value = [link, mdValue];
+    const copyMD = copyStyle.value === "md";
     if (copyMD) {
-      copyToClipboard(mdValue)
-    }
-    else {
-      getShortUrl(link)
+      copyToClipboard(mdValue);
+    } else {
+      getShortUrl(link);
     }
     Idb(db_img_config).then((img_db) => {
       img_db.insert({
-        tableName: 'img',
+        tableName: "img",
         data: {
           id: uuid.generate(),
           name: FileItem.name,
@@ -168,62 +162,61 @@ const uploadSuccess = (FileItem) => {
           height: res.data.image_height,
           date: Date.now(),
         },
-        success: () => console.log('添加成功'),
-      })
-    })
-  }
-  else {
-    if (res.message === '请先登录') {
-      toLogin()
-    }
-    else {
-      Message.error(`上传失败:${res.message}`)
+        success: () => console.log("添加成功"),
+      });
+    });
+  } else {
+    if (res.message === "请先登录") {
+      toLogin();
+    } else {
+      Message.error(`上传失败:${res.message}`);
     }
   }
-}
+};
 
 const resUrlKey = (FileItem) => {
-  return getResponseImgUrlHttps(FileItem.response)
-}
+  return getResponseImgUrlHttps(FileItem.response);
+};
 
 const handleTPaste = (event) => {
   if (!token.value) {
-    toLogin()
-    return
+    toLogin();
+    return;
   }
-  const image = getPasteImg(event)
-  console.log(image)
+  const image = getPasteImg(event);
+  console.log(image);
   if (image) {
-    fileList.value = [image]
+    fileList.value = [image];
     nextTick(() => {
-      upload.value.submit(image)
-    })
+      upload.value.submit(image);
+    });
   }
-}
+};
 
 const getToken = () => {
-  browser.cookies.get({
-    name: 'SESSDATA',
-    url: homePage,
-  }).then((res) => {
-    console.log(res)
-    if (res.value) {
-      token.value = res.value
-    }
-  })
-}
+  browser.cookies
+    .get({
+      name: "SESSDATA",
+      url: homePage,
+    })
+    .then((res) => {
+      console.log(res);
+      if (res.value) {
+        token.value = res.value;
+      }
+    });
+};
 
 onMounted(() => {
-  getToken()
-  const localCopyStyle = localStorage.getItem('copyStyle')
+  getToken();
+  const localCopyStyle = localStorage.getItem("copyStyle");
   if (localCopyStyle) {
-    copyStyle.value = localCopyStyle
+    copyStyle.value = localCopyStyle;
   }
-})
-
+});
 </script>
 <style lang="scss">
-.upload-main{
+.upload-main {
   background-color: var(--color-fill-2);
   color: var(--color-text-1);
   border: 1px dashed var(--color-fill-4);
@@ -236,13 +229,13 @@ onMounted(() => {
 }
 
 a {
-  color: #F596AA;
+  color: #f596aa;
   cursor: pointer;
 }
 .link {
-  margin-bottom: 0!important;
+  margin-bottom: 0 !important;
 }
-.use-focus{
+.use-focus {
   position: absolute;
   left: -99999px;
 }
@@ -257,5 +250,4 @@ a {
     color: rosybrown;
   }
 }
-
 </style>
