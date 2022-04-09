@@ -94,24 +94,9 @@ export const getPasteImg = (event) => {
 };
 
 export const fetchShortUrl = (link, copyShortURL = true) => {
-  const url =
-    "https://service-ijd4slqi-1253419200.gz.apigw.tencentcs.com/release/bsu?url=";
-  const encodeLink = encodeURIComponent(link);
-  console.log(encodeLink);
-  return fetch(url + encodeLink)
-    .then((res) => {
-      return res.json();
-    })
-    .then((res) => {
-      console.log(res);
-      if (res.success) {
-        const shortUrl = res.short_url;
-        if (copyShortURL) {
-          copyToClipboard(shortUrl);
-        }
-        return shortUrl;
-      } else {
-        copyToClipboard(link);
-      }
-    });
+  const shortUrl = `[img]${link}@640w_640h_85q_1e.webp[/img]`;
+  if (copyShortURL) {
+    copyToClipboard(shortUrl);
+  }
+  return shortUrl;
 };

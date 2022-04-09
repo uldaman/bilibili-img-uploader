@@ -1,5 +1,5 @@
 <template>
-  <Spin :loading="loading" tip="正在获取短链..." class="w-full">
+  <Spin :loading="loading" tip="正在获取 BBCode..." class="w-full">
     <div class="px-2">
       <div class="layout-slide mb-2 w-full">
         <RangePicker clearable @change="onDateChange" />
@@ -38,14 +38,6 @@
             <template #cell="{ record }">
               <div>
                 <Button
-                  type="outline"
-                  size="mini"
-                  @click="getShortUrl(record.url)"
-                >
-                  短链
-                </Button>
-                <Button
-                  class="ml-2"
                   type="primary"
                   status="success"
                   size="mini"
@@ -61,6 +53,14 @@
                   @click="copy(record, 'MD')"
                 >
                   MD
+                </Button>
+                <Button
+                  class="ml-2"
+                  type="outline"
+                  size="mini"
+                  @click="getShortUrl(record.url)"
+                >
+                  BBC
                 </Button>
                 <Popconfirm
                   content="确认删除吗？"
@@ -107,10 +107,7 @@ const paginationPros = {
 
 const loading = ref(false);
 const getShortUrl = (link) => {
-  loading.value = true;
-  fetchShortUrl(link).finally(() => {
-    loading.value = false;
-  });
+  fetchShortUrl(link);
 };
 
 const data = ref([]);
@@ -150,7 +147,7 @@ const copy = (record, type) => {
   let url = record.url;
   switch (type) {
     case "MD":
-      url = `![](${url}@1e_1c.webp)`;
+      url = `![](${url}@640w_640h_85q_1e.webp)`;
       break;
     default:
       break;

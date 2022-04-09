@@ -5,7 +5,7 @@
       <Tag color="#fb7299"> 默认复制格式 </Tag>
       <radio-group v-model="copyStyle" @change="changeCopyStyle">
         <radio value="md"> Markdown </radio>
-        <radio value="shortURL"> 短链 </radio>
+        <radio value="shortURL"> BBCode </radio>
       </radio-group>
     </div>
     <div class="layout-slide p-2 switch-row token">
@@ -110,7 +110,7 @@ const uploadData = {
 const fileList = ref([]);
 const upload = ref(null);
 
-const types = ref(["图片链接", "MarkDown", "B站短链"]);
+const types = ref(["图片链接", "MarkDown", "BBCode"]);
 
 const links = ref([]);
 
@@ -128,11 +128,10 @@ const changeCopyStyle = (val) => {
 
 const getShortUrl = (link) => {
   const copyShortURL = copyStyle.value === "shortURL";
-  fetchShortUrl(link, copyShortURL).then((res) => {
-    if (res) {
-      links.value.push(res);
-    }
-  });
+  const res = fetchShortUrl(link, copyShortURL);
+  if (res) {
+    links.value.push(res);
+  }
 };
 
 const toLogin = () => {
