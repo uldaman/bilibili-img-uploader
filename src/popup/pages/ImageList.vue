@@ -98,6 +98,7 @@ import { copyToClipboard, fetchShortUrl, formatDate } from "~/utils";
 const props = defineProps({
   refreshKey: Number,
 });
+const emitter = inject("emitter");
 
 const virtualListProps = ref(null);
 const paginationPros = {
@@ -184,6 +185,10 @@ const onDateChange = (dateStr, date) => {
     filterData.value = data.value;
   }
 };
+
+emitter.on("updated", () => {
+  getImgList();
+});
 
 watch(props, () => {
   getImgList();

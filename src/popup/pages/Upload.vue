@@ -24,6 +24,7 @@
         :action="uploadUrl"
         draggable
         list-type="picture"
+        :show-remove-button="false"
         accept="image/*"
         multiple
         :with-credentials="true"
@@ -96,6 +97,8 @@ import {
 import db_img_config from "../db_img_config";
 import { copyToClipboard, fetchShortUrl, getPasteImg } from "~/utils";
 
+const emitter = inject("emitter");
+
 const homePage = "https://bilibili.com";
 const loginUrl = "https://passport.bilibili.com/login";
 const uploadUrl = "https://api.vc.bilibili.com/api/v1/drawImage/upload";
@@ -162,7 +165,7 @@ const uploadSuccess = (FileItem) => {
           height: res.data.image_height,
           date: Date.now(),
         },
-        success: () => console.log("添加成功"),
+        success: () => emitter.emit("updated"),
       });
     });
   } else {
